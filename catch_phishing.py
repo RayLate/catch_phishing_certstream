@@ -13,7 +13,7 @@ connection = None
 
 if __name__ == '__main__':
 
-    SERVER = "172.26.191.186"
+    SERVER = "172.26.191.206"
     PORT = 8080
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     connection.connect((SERVER, PORT))
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         brand_list = json.load(f)
     print("total number of brands: {}".format(len(list(brand_list.keys()))))
 
-    for brand in list(brand_list.keys()):
+    for brand in list(brand_list.keys())[int(len(list(brand_list.keys()))//3):]:
         pbar.update(1)
         domain = brand_list[brand]["url"]
         connection.send(domain.encode('utf-8'))

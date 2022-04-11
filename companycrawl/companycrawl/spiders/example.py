@@ -11,34 +11,6 @@ import websockets
 import time
 import json
 
-script2 = """
-function main(splash, args)
-  assert(splash:go(splash.args.url))
-  assert(splash:wait(3))
-  local element = splash:select_all('*')
-  local srcs = {}
-  for _, img in ipairs(element) do
-     local data = img.info()
-     local new_data = {}
-     new_data['nodeName'] = data.nodeName
-     new_data['x'] = data.x
-     new_data['y'] = data.y
-     new_data['width'] = data.width
-     new_data['height'] = data.height
-     srcs[#srcs+1] = new_data
-
-  end
-  return {
-    elements = srcs,
-    html = splash:html(),
-    png = splash:png{render_all=true},
-    har = splash:har(),
-    url = splash:url()
-  }
-end
-"""
-
-
 script = """
 function main(splash, args)
   splash:set_viewport_size(1920,1080)
@@ -74,7 +46,8 @@ class ExtractSpider(scrapy.Spider):
         return domain
 
     def start_requests(self):
-        SERVER = "172.26.191.186"
+
+        SERVER = "172.26.191.206"
         PORT = 8080
         print("start")
         connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -97,7 +70,7 @@ class ExtractSpider(scrapy.Spider):
                 if '*.' in url:
                     continue
                 url = 'https://' + url
-                output_folder = "G:/company"
+                output_folder = "/home/ruofan/git_space/company"
                 domain = self.clean_domain(url, '\/:*?"<>|')
                 if os.path.exists(os.path.join(output_folder, domain)):
                     continue
@@ -125,7 +98,7 @@ class ExtractSpider(scrapy.Spider):
 
         png_bytes = base64.b64decode(response.data['png'])
 
-        output_folder = "G:/company"
+        output_folder = "/home/ruofan/git_space/company"
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
