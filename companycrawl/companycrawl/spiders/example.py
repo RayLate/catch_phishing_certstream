@@ -48,7 +48,7 @@ class ExtractSpider(scrapy.Spider):
     def start_requests(self):
 
         SERVER = "172.26.191.206"
-        PORT = 8080
+        PORT = 8889
         print("start")
         connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connection.connect((SERVER, PORT))

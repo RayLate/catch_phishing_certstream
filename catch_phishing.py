@@ -14,7 +14,7 @@ connection = None
 if __name__ == '__main__':
 
     SERVER = "172.26.191.206"
-    PORT = 8080
+    PORT = 8889
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     connection.connect((SERVER, PORT))
     print("connected")
