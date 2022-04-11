@@ -1,3 +1,6 @@
+## Summary
+In this repository, I implement a customized scrapy crawler to crawl a list of URLs with its HTML, screenshot, information.
+
 ## Environment setup
 ```
 conda create --name py37-fixed python=3.7.10

@@ -24,7 +24,7 @@ if __name__ == '__main__':
         brand_list = json.load(f)
     print("total number of brands: {}".format(len(list(brand_list.keys()))))
 
-    for brand in list(brand_list.keys())[int(len(list(brand_list.keys()))//3):]:
+    for brand in list(brand_list.keys())[int(len(list(brand_list.keys()))//3):]: # FIXME: replace with your own URL list
         pbar.update(1)
         domain = brand_list[brand]["url"]
         connection.send(domain.encode('utf-8'))
