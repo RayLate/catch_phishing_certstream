@@ -24,6 +24,7 @@ bash ./start_server_linux.sh
 
 ## Step 3: Run scrapy crawler
 ```
+change the USER_AGENT in companycrawl/settings.py to your own user agent
 cd companycrawl
 scrapy crawl company -a http_user=user -a http_pass=userpass
 ```
