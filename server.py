@@ -1,4 +1,7 @@
 import socket, threading
+import os
+from subprocess import Popen, PIPE
+import signal
 
 lock = threading.Lock()
 queue = []
@@ -49,7 +52,17 @@ LOCALHOST = "localhost"
 PORT = 8889
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((LOCALHOST, PORT))
+try:
+    server.bind((LOCALHOST, PORT))
+except OSError:
+    process = Popen(["lsof", "-i", ":{0}".format(PORT)], stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate()
+    for process in str(stdout.decode("utf-8")).split("\n")[1:]:
+        data = [x for x in process.split(" ") if x != '']
+        if (len(data) <= 1):
+            continue
+        os.kill(int(data[1]), signal.SIGKILL)
+
 print("Server started")
 print("Waiting for client request..")
 
