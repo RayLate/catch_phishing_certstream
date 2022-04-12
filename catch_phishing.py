@@ -27,16 +27,19 @@ if __name__ == '__main__':
     for brand in list(brand_list.keys())[int(len(list(brand_list.keys()))//3):]: # FIXME: replace with your own URL list
         pbar.update(1)
         domain = brand_list[brand]["url"]
-        connection.send(domain.encode('utf-8'))
+        try:
+            connection.send(domain.encode('utf-8'))
 
-        if os.path.exists(log_suspicious):
-            existing = set(filter(None, set(open(log_suspicious,'r').read().split('\n'))))
-            with open(log_suspicious, 'a') as f:
-                if domain not in existing:
+            if os.path.exists(log_suspicious):
+                existing = set(filter(None, set(open(log_suspicious,'r').read().split('\n'))))
+                with open(log_suspicious, 'a') as f:
+                    if domain not in existing:
+                        f.write("{}\n".format(domain))
+            else:
+                with open(log_suspicious, 'a') as f:
                     f.write("{}\n".format(domain))
-        else:
-            with open(log_suspicious, 'a') as f:
-                f.write("{}\n".format(domain))
+        except:
+            continue
 
 
 
