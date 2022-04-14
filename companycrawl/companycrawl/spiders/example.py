@@ -72,7 +72,7 @@ class ExtractSpider(scrapy.Spider):
                 url = 'https://' + url
                 output_folder = "/home/ruofan/git_space/company" # FIXME: to change
                 domain = self.clean_domain(url, '\/:*?"<>|')
-                if os.path.exists(os.path.join(output_folder, domain)):
+                if os.path.exists(os.path.join(output_folder, domain, 'html.txt')):
                     continue
 
                 splash_args = {
@@ -108,7 +108,7 @@ class ExtractSpider(scrapy.Spider):
 
         screenshot_path = os.path.join(output_folder, "shot.png")
         info_path = os.path.join(output_folder, "info.txt")
-        # html_path = os.path.join(output_folder, "html.txt")
+        html_path = os.path.join(output_folder, "html.txt")
 
         with open(screenshot_path, 'wb+') as f:
             f.write(png_bytes)
@@ -116,8 +116,8 @@ class ExtractSpider(scrapy.Spider):
         with open(info_path, 'w+') as f:
             f.write(response.data['url'])
 
-        # with open(html_path, 'wb+') as f:
-        #     f.write(response.body)
+        with open(html_path, 'wb+') as f:
+            f.write(response.body)
 
     def url_join(self, urls, response):
         joined_urls = []
