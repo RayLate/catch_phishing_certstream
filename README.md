@@ -13,18 +13,17 @@ pip install -r req.txt
 cd aquarium/
 sudo docker-compose up
 ```
-## Step 2: Start URL feeding
+## Step 2: Start URL feeding, feed obtained from Certstream
 - For windows
 ```
 cd ../
-./start_server_windows.bat
+./start_server_windows_certstream.bat
 ```
 - For Linux
 ```
 cd ../
-bash ./start_server_linux.sh
+bash ./start_server_linuxcertstream.sh
 ```
-
 ## Step 3: Run scrapy crawler
 - Change the USER_AGENT in companycrawl/settings.py to your own user agent
 - Change the output_folder in companycrawl/spider/example.py to where you want to save the scraped results
