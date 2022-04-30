@@ -22,7 +22,7 @@ cd ../
 - For Linux
 ```
 cd ../
-bash ./start_server_linuxcertstream.sh
+bash ./start_server_linux_certstream.sh
 ```
 ## Step 3: Run scrapy crawler
 - Change the USER_AGENT in companycrawl/settings.py to your own user agent

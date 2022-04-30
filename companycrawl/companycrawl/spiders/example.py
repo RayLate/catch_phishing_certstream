@@ -35,10 +35,13 @@ class MyItem(scrapy.Item):
 class ExtractSpider(scrapy.Spider):
     name = 'company'
     num = 0
-
     custom_settings = {
         "HTTPERROR_ALLOWED_CODES": [503],
     }
+
+    def get_output_folder(self):
+        output_folder = "/home/ruofan/git_space/company"
+        return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):
         for c in deletechars:
@@ -70,9 +73,9 @@ class ExtractSpider(scrapy.Spider):
                 if '*.' in url:
                     continue
                 url = 'https://' + url
-                output_folder = "/home/ruofan/git_space/company" # FIXME: to change
+
                 domain = self.clean_domain(url, '\/:*?"<>|')
-                if os.path.exists(os.path.join(output_folder, domain, 'html.txt')):
+                if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     continue
 
                 splash_args = {
@@ -98,11 +101,10 @@ class ExtractSpider(scrapy.Spider):
 
         png_bytes = base64.b64decode(response.data['png'])
 
-        output_folder = "/home/ruofan/git_space/company" # FIXME: to change
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
+        if not os.path.exists(self.get_output_folder()):
+            os.makedirs(self.get_output_folder())
 
-        output_folder = os.path.join(output_folder, domain)
+        output_folder = os.path.join(self.get_output_folder(), domain)
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
