@@ -13,6 +13,13 @@ pip install -r req.txt
 cd aquarium/
 sudo docker-compose up
 ```
+Note that if you are using Windows, you need a virtual machine with [Ubuntu image](https://techloudgeek.com/download/image/?link=https://dlhzub60.linuxvmimages.com/) to run this step. 
+- You need to configure [NAT port forwarding](https://www.virten.net/2013/03/how-to-setup-port-forwarding-in-vmware-workstation-9/) in order to connect VM to network.
+- Then move the aquarium folder into the VM, [install docker on VM](https://docs.docker.com/engine/install/ubuntu/).
+- Run the two commands in terminal
+- Change the SPLASH_URL = 'http://[ip address of your VM]:8050' in companycrawl/settings.py 
+- Only step1 needs an ubuntu machine, step2 and step3 can be run locally.
+
 ## Step 2: Start URL feeding, feed obtained from Certstream
 - For windows
 ```
