@@ -40,7 +40,7 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        output_folder = "/home/ruofan/git_space/phishing_research/datasets/New_phish30k"
+        output_folder = "/home/ruofan/git_space/phishing-research/datasets/New_phish30k"
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):

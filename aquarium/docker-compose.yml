@@ -87,8 +87,8 @@ services:
             - ./filters/test:/etc/splash/filters:ro
 
 
-    
-    
+
+
     tor:
         image: jess/tor-proxy
         expose:
