@@ -21,8 +21,8 @@ if __name__ == '__main__':
     connection.connect((SERVER, PORT))
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--feed_save_path', default="D:/ruofan/phishing-kit-database/openphish/feed_download")
-    parser.add_argument('--save_dir', default="D:/ruofan/New_phish30k")
+    parser.add_argument('--feed_save_path', default="/home/ruofan/git_space/phishing-kit-database/openphish/feed_download")
+    parser.add_argument('--save_dir', default="/home/ruofan/git_space/phishing_research/datasets/New_phish30k")
     args = parser.parse_args()
 
     print("connected")
@@ -45,8 +45,9 @@ if __name__ == '__main__':
         file.close()
         
     with open("{}/feed30day_".format(args.feed_save_path)+time_now+'/premium_phishing_feed_30_days.json', "rb") as local_feed:
-        feed_today = json.load(local_feed) # print("Number of phishing {}".format(len(feed_today)))
-
+        feed_today = json.load(local_feed)
+        
+   print("Number of phishing {}".format(len(feed_today)))
         
     for feed in feed_today: 
         pbar.update(1)
