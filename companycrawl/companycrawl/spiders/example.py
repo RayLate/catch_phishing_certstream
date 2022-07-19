@@ -70,11 +70,12 @@ class ExtractSpider(scrapy.Spider):
                 continue
             else:
                 url = msg
-                if '*.' in url:
-                    continue
-                url = 'https://' + url
+#                 if '*.' in url:
+#                     continue
+#                 url = 'https://' + url
 
-                domain = self.clean_domain(url, '\/:*?"<>|')
+#                 domain = self.clean_domain(url, '\/:*?"<>|')
+                domain = self.clean_domain(url.split('://')[1].split('/')[0], '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     continue
 
