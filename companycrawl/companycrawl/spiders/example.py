@@ -109,14 +109,14 @@ class ExtractSpider(scrapy.Spider):
             os.makedirs(output_folder)
 
         screenshot_path = os.path.join(output_folder, "shot.png")
-        info_path = os.path.join(output_folder, "info.txt")
+#         info_path = os.path.join(output_folder, "info.txt")
         html_path = os.path.join(output_folder, "html.txt")
 
         with open(screenshot_path, 'wb+') as f:
             f.write(png_bytes)
 
-        with open(info_path, 'w+') as f:
-            f.write(response.data['url'])
+#         with open(info_path, 'w+') as f:
+#             f.write(response.data['url'])
 
         with open(html_path, 'wb+') as f:
             f.write(response.body)
