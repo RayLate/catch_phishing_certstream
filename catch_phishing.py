@@ -50,6 +50,7 @@ if __name__ == '__main__':
         
     for feed in feed_today: 
         pbar.update(1)
+        url = feed["url"]
         domain = clean_domain(feed["url"].split('://')[1].split('/')[0], '\/:*?"<>|')
         dirname = os.path.join(args.save_dir, domain)
         
@@ -60,7 +61,7 @@ if __name__ == '__main__':
             fw.write(str(feed))
         
         try:
-            connection.send(domain.encode('utf-8'))
+            connection.send(url.encode('utf-8'))
         except:
             continue
 
