@@ -40,7 +40,7 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        output_folder = "/home/ruofan/git_space/phishing-research/datasets/New_phish30k"
+        output_folder = ""
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):
@@ -70,12 +70,12 @@ class ExtractSpider(scrapy.Spider):
                 continue
             else:
                 url = msg
-#                 if '*.' in url:
-#                     continue
-#                 url = 'https://' + url
+                if '*.' in url:
+                    continue
+                url = 'https://' + url
 
-#                 domain = self.clean_domain(url, '\/:*?"<>|')
-                domain = self.clean_domain(url.split('://')[1].split('/')[0], '\/:*?"<>|')
+                domain = self.clean_domain(url, '\/:*?"<>|')
+#                 domain = self.clean_domain(url.split('://')[1].split('/')[0], '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     continue
 
@@ -110,14 +110,14 @@ class ExtractSpider(scrapy.Spider):
             os.makedirs(output_folder)
 
         screenshot_path = os.path.join(output_folder, "shot.png")
-#         info_path = os.path.join(output_folder, "info.txt")
+        info_path = os.path.join(output_folder, "info.txt")
         html_path = os.path.join(output_folder, "html.txt")
 
         with open(screenshot_path, 'wb+') as f:
             f.write(png_bytes)
 
-#         with open(info_path, 'w+') as f:
-#             f.write(response.data['url'])
+        with open(info_path, 'w+') as f:
+            f.write(response.data['url'])
 
         with open(html_path, 'wb+') as f:
             f.write(response.body)
