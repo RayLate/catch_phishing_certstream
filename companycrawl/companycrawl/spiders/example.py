@@ -40,7 +40,8 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        output_folder = ""
+        from datetime import datetime
+        output_folder = "F://screenshots_rf/{}".format(datetime.today().strftime('%Y-%m-%d'))
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):

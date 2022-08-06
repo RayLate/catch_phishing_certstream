@@ -1,7 +1,7 @@
 ## Summary
 In this repository, I implement a customized scrapy crawler to crawl a list of URLs with its HTML, screenshot, information.
 
-## Environment setup
+## Environment setup [! We find that the scrapy crawler only works with python version 3.7.10]
 ```
 conda create --name py37-fixed python=3.7.10
 conda activate py37-fixed
