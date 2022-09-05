@@ -10,6 +10,11 @@ import socket
 import websockets
 import time
 import json
+from datetime import datetime
+from PIL import Image
+import cv2
+import numpy as np
+import io
 
 script = """
 function main(splash, args)
@@ -40,14 +45,26 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        from datetime import datetime
-        output_folder = "F://screenshots_rf/{}".format(datetime.today().strftime('%Y-%m-%d'))
+        output_folder = "Z://{}".format(datetime.today().strftime('%Y-%m-%d'))
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):
         for c in deletechars:
             domain = domain.replace(c, '')
         return domain
+
+    @staticmethod
+    def white_screen(old_screenshot_img):
+        old_screenshot_img = old_screenshot_img.convert("RGB")
+        old_screenshot_img_arr = np.asarray(old_screenshot_img)
+        old_screenshot_img_arr = np.flip(old_screenshot_img_arr, -1)  # RGB2BGR
+        img = cv2.cvtColor(old_screenshot_img_arr, cv2.COLOR_BGR2GRAY)
+
+        img_area = np.prod(img.shape)
+        white_area = np.sum(img == 255)
+        if white_area / img_area >= 0.9:  # skip white screenshots
+            return True  # dirty
+        return False
 
     def start_requests(self):
 
@@ -76,7 +93,6 @@ class ExtractSpider(scrapy.Spider):
                 url = 'https://' + url
 
                 domain = self.clean_domain(url, '\/:*?"<>|')
-#                 domain = self.clean_domain(url.split('://')[1].split('/')[0], '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     continue
 
@@ -102,9 +118,14 @@ class ExtractSpider(scrapy.Spider):
         domain = self.clean_domain(urlparse(response.data['url']).netloc, '\/:*?"<>|')
 
         png_bytes = base64.b64decode(response.data['png'])
+        screenshot_img = Image.open(io.BytesIO(png_bytes))
+        if self.white_screen(screenshot_img):
+            return
 
         if not os.path.exists(self.get_output_folder()):
             os.makedirs(self.get_output_folder())
+        if len(os.listdir(self.get_output_folder())) >= 3000: # daily crawling limit
+            return
 
         output_folder = os.path.join(self.get_output_folder(), domain)
         if not os.path.exists(output_folder):
