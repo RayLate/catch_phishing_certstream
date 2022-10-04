@@ -11,7 +11,7 @@ websocket-client==0.37.0
 websockets==9.1
 tqdm
 pandas
-certstream
+certstream==1.12
 python-Levenshtein
 termcolor
 tld
