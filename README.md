@@ -24,7 +24,7 @@ Note that if you are using Windows, you need a virtual machine with [Ubuntu imag
 - For windows
 ```
 cd ../
-./start_server_windows_certstream.bat
+start_server_windows_certstream.bat
 ```
 - For Linux
 ```

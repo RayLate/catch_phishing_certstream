@@ -11,6 +11,7 @@ from termcolor import colored, cprint
 from tld import get_tld
 import socket
 from confusables import unconfuse
+# from certstream import CertStreamClient
 
 # Introducing argparse to add arguments for date seen for particular certificate
 # Usually, phishing websites last for approximate 54 hours = 2.25 days
@@ -157,4 +158,3 @@ if __name__ == '__main__':
 
     certstream.listen_for_events(callback, url=certstream_url)
 
-    

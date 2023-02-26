@@ -45,7 +45,7 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        output_folder = "Z://{}".format(datetime.today().strftime('%Y-%m-%d'))
+        output_folder = "D://{}".format(datetime.today().strftime('%Y-%m-%d'))
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):
@@ -77,6 +77,7 @@ class ExtractSpider(scrapy.Spider):
 
         while True:
             if self.num > 100:
+                # after 100 503 error, rest for 5 second, this prevents server overloading
                 print(self.num)
                 time.sleep(5)
                 self.num -= 10
@@ -84,9 +85,12 @@ class ExtractSpider(scrapy.Spider):
             msg = connection.recv(2048)
             msg = msg.decode('utf-8')
             if msg == '1':
+                # if the return message is '1', means the queue is empty
+                # wait and try again
                 time.sleep(1)
                 continue
             else:
+                # else an url is returned
                 url = msg
                 if '*.' in url:
                     continue
@@ -94,13 +98,14 @@ class ExtractSpider(scrapy.Spider):
 
                 domain = self.clean_domain(url, '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
+                    # check domain in output folder, if present, skip
                     continue
 
                 splash_args = {
                     'lua_source': script,
                     'filters': 'fanboy-annoyance',
-                    'timeout': 10,
-                    'resource_timeout': 10
+                    'timeout': 20,
+                    'resource_timeout': 20
                 }
 
                 yield SplashRequest(url, self.parse_result, endpoint='execute', args=splash_args)

@@ -69,5 +69,5 @@ print("Waiting for client request..")
 while True:
     server.listen(5)
     clientsock, clientAddress = server.accept()
-    newthread = ClientThread(clientAddress, clientsock)
+    newthread: ClientThread = ClientThread(clientAddress, clientsock)
     newthread.start()
