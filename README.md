@@ -9,6 +9,8 @@ pip install -r req.txt
 ```
 
 ## Step 1: Run docker environment
+As long as the docker is turn on, the docker environment starts automatically every hour starting from 00:00 am
+To check if the docker is running proper, on firefox go to `0.0.0.0:8036`. if the page does not load run the code below
 ```
 cd aquarium/
 sudo docker-compose up

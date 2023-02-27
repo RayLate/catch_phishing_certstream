@@ -1,51 +1,62 @@
-import socket, threading
+import socket
+import threading
 import os
 from subprocess import Popen, PIPE
 import signal
 
-lock = threading.Lock()
 queue = []
-dict = {'1'}
+seen_messages = set()
+lock = threading.Lock()
+
 
 class ClientThread(threading.Thread):
     def __init__(self, clientAddress, clientsocket):
-        threading.Thread.__init__(self)
+        super().__init__()
         self.csocket = clientsocket
         print("New connection added: ", clientAddress)
 
     def run(self):
-        print("Connection from : ", clientAddress)
         # self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
-        msg = ''
-        while True:
-            data = self.csocket.recv(2048)
-            msg = data.decode()
+        global lock
+        global queue
+        global seen_messages
+        try:
+            while True:
+                data = self.csocket.recv(2048)
+                if not data:
+                    print("not data")
+                    continue
 
-            global lock
-            global queue
-            global dict
-            lock.acquire()
-            if msg == '1':
-                to_send = None
-                if len(queue) != 0:
-                    print(len(queue))
-                    to_send = queue.pop(-1)
+                msg = data.decode().strip()
+                # print(f"Received message: {msg}")
+
+                lock.acquire()
+                # print(f"Connection: {self.csocket.getsockname()} locked")
+                if msg == '1':
+                    print(f"Received message: {msg}")
+                    to_send = None if not queue else queue.pop()
+                    if to_send is None:
+                        # If there is no message to send, just send '1' back
+                        to_send = '1'
+                    print(f"Sending message: {to_send}")
+                    self.csocket.send(to_send.encode())
+
                 else:
-                    to_send = '1'
+                    if not msg in seen_messages:
+                        seen_messages.add(msg)
+                        queue.append(msg)
+                        # print(f"Added message to queue: {msg}")
+
                 lock.release()
-                to_send = to_send.encode('utf-8')
-                self.csocket.send(to_send)
+                # print(f"Connection: {self.csocket.getsockname()} released")
 
-            else:
-                if msg in dict:
-                    lock.release()
-                else:
-                    dict.add(msg)
-                    queue.append(msg)
-                    lock.release()
-
-
-        print("Client at ", clientAddress, " disconnected...")
+        except Exception as e:
+            lock.release()
+            print(f"Error: {str(e)}")
+            print(f"Client at {self.csocket.getsockname()} disconnected...")
+        finally:
+            self.csocket.close()
+            print(f"Connection to {self.csocket.getsockname()} closed")
 
 
 LOCALHOST = "localhost"
@@ -55,7 +66,8 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 try:
     server.bind((LOCALHOST, PORT))
 except OSError:
-    process = Popen(["lsof", "-i", ":{0}".format(PORT)], stdout=PIPE, stderr=PIPE)
+    process = Popen(
+        ["lsof", "-i", ":{0}".format(PORT)], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
     for process in str(stdout.decode("utf-8")).split("\n")[1:]:
         data = [x for x in process.split(" ") if x != '']

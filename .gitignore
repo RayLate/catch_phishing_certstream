@@ -3,3 +3,4 @@ aquarium/*.swn
 aquarium/*.swo
 aquarium/*.swp
 brand_list.json
+*.log

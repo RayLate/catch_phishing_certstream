@@ -30,6 +30,35 @@ function main(splash, args)
 end
 """
 
+
+def check_domain_is_reachable(domain):
+    import socket
+
+    domain = str(domain).strip()
+    ip_address = None
+
+    # Get the IP address of the domain
+    try:
+        ip_address = socket.gethostbyname(domain)
+        # print("IP address:", ip_address)
+    except socket.gaierror as e:
+        pass
+        # print("Could not get IP address:", e)
+
+    # Check if the domain is reachable
+    if ip_address is not None:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        try:
+            result = sock.connect_ex((ip_address, 80))
+            if result == 0:
+                return True
+
+        except socket.error as e:
+            print("Socket error:", e)
+        sock.close()
+    return False
+
 class MyItem(scrapy.Item):
     # ... other item fields ...
     image_urls = scrapy.Field()
@@ -91,11 +120,20 @@ class ExtractSpider(scrapy.Spider):
                 continue
             else:
                 # else an url is returned
+                time.sleep(0.2)
                 url = msg
                 if '*.' in url:
                     continue
-                url = 'https://' + url
 
+                domain = self.clean_domain(url, '\/:*?"<>|')
+
+                # check domain is reachable
+                if not check_domain_is_reachable(domain):
+                    # if not reachable, skip
+                    print(f"{domain} not reachable")
+                    continue
+
+                url = 'https://' + domain
                 domain = self.clean_domain(url, '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     # check domain in output folder, if present, skip
@@ -131,7 +169,7 @@ class ExtractSpider(scrapy.Spider):
             os.makedirs(self.get_output_folder())
         if len(os.listdir(self.get_output_folder())) >= 3000: # daily crawling limit
             return
-
+        print(f'crawled page {domain}...')
         output_folder = os.path.join(self.get_output_folder(), domain)
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)

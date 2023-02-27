@@ -108,6 +108,8 @@ def callback(message, context):
     """Callback handler for certstream events."""
     if message['message_type'] == "heartbeat":
         return
+    # moderate speed of callbacks
+    time.sleep(0.02)
 
     # Introducing the idea of cert recency
     if message['message_type'] == "certificate_update" and message['data']['seen'] > cert_recency:
