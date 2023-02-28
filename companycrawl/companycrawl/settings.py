@@ -43,7 +43,7 @@ HTTPERROR_ALLOWED_CODES  =[503,504] #!
 DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
 HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
 #Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 5
+CONCURRENT_REQUESTS = 16
 
 
 # Configure a delay for requests for the same website (default: 0)
@@ -51,7 +51,7 @@ CONCURRENT_REQUESTS = 5
 # See also autothrottle settings and docs
 DOWNLOAD_DELAY = 8
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
+CONCURRENT_REQUESTS_PER_DOMAIN = 16
 DOWNLOAD_TIMEOUT = 10
 
 # Disable cookies (enabled by default)
