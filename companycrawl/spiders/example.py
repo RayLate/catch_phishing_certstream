@@ -17,6 +17,7 @@ import numpy as np
 import io
 import requests
 from w3lib.http import basic_auth_header
+from db.db import *
 
 script = """
 function main(splash, args)
@@ -228,21 +229,14 @@ class ExtractSpider(scrapy.Spider):
 
         # get domain location
         location = ''
-        detected = ''
-        results = ''
         try:
             location = get_ip_location(domain)
         except Exception as e:
             pass
 
-        # Captcha Detection
-        result_path = 'result.txt'
-
-        message = f'{domain};{detected};{results};{location}'
-        append(result_path, message)
-        # if detected:
-        #     print(domain, 'contains Captcha')
-
+        data = get_sample_data(domain)
+        data['location'] = location
+        add_one(data)
         # Run Dynaphish
         # isDynaphishUp = False
         # try:
