@@ -20,7 +20,8 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 ROBOTSTXT_OBEY = False
 # DOWNLOADER_CLIENT_TLS_METHOD = 'SSLv3'
 
-SPLASH_URL = 'http://192.168.59.165:8050'
+# SPLASH_URL = 'http://localhost:8050'
+# SPLASH_URL = 'http://192.168.59.130:8050'
 
 DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,

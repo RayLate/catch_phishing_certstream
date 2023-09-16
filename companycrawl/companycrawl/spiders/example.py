@@ -1,6 +1,8 @@
 import os
 import json
 import base64
+from PIL import Image
+from io import BytesIO
 import scrapy
 from scrapy_splash import SplashRequest
 import pandas as pd
@@ -15,6 +17,7 @@ from PIL import Image
 import cv2
 import numpy as np
 import io
+import requests
 
 script = """
 function main(splash, args)
@@ -29,35 +32,95 @@ function main(splash, args)
   }
 end
 """
+import requests
+
+class CaptchaIdentifier:
+
+    def __init__(self):
+        self.DOCKER_HOSTNAME = "192.168.59.130"
+        self.PORT = "5000"
+        self.URL = f'http://{self.DOCKER_HOSTNAME}:{self.PORT}'
+
+    def reset_database(self):
+        res = requests.post(f'{self.URL}/database/reset')
+        print(f'status code <{res.status_code}>')
+        if res.status_code == 200:
+            print('databased reset successfully')
+        else:
+            print('something went wrong')
+
+    def make_prediction(self, screenshot: str):
+        # screenshot in base 64
+        payload = {'screenshot': screenshot}
+        headers = {"Content-Type": "application/json; charset=utf-8"}
+        # print(f'payload: {json.dumps(payload)}')
+        res = requests.post(f'{self.URL}/predict', json=payload, headers=headers)
+        print(f'status code <{res.status_code}>')
+        print(res.json())
+        if res.status_code == 200:
+            return res.json()
 
 
-def check_domain_is_reachable(domain):
-    import socket
+def get_ip_location(domain):
+    import requests
+    import json
+    from iplookup import iplookup
 
-    domain = str(domain).strip()
-    ip_address = None
+    ip = iplookup.iplookup
 
-    # Get the IP address of the domain
+    # IP address to test
+    ip_address = ip(domain)
+    if ip_address:
+        ip_address = ip_address[0]
+        request_url = 'https://geolocation-db.com/jsonp/' + ip_address
+        response = requests.get(request_url)
+        result = response.content.decode()
+        result = result.split("(")[1].strip(")")
+        result = json.loads(result)
+        return result.get('country_name')
+    return ''
+
+
+def convert_image_to_base64(path: str) -> str:
+    # Set the path to your image file
+    image_path = path
+
     try:
-        ip_address = socket.gethostbyname(domain)
-        # print("IP address:", ip_address)
-    except socket.gaierror as e:
-        pass
-        # print("Could not get IP address:", e)
+        # Check if the file exists and is a valid image file
+        if not os.path.exists(image_path):
+            raise ValueError("File not found")
 
-    # Check if the domain is reachable
-    if ip_address is not None:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(2)
-        try:
-            result = sock.connect_ex((ip_address, 80))
-            if result == 0:
-                return True
+        if not Image.open(image_path).format:
+            raise ValueError("File is not a valid image")
 
-        except socket.error as e:
-            print("Socket error:", e)
-        sock.close()
-    return False
+        # Open the image file using PIL
+        with open(image_path, 'rb') as image_file:
+            image = Image.open(image_file)
+
+            # Convert the image to a base64 string
+            buffered = BytesIO()
+            image.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+            # Print the base64 string
+            return img_str
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+
+
+def append(path: str, message: str):
+    with open(path, 'a') as f:
+        f.write(message + '\n')
+
+
+def check_duplicate(path: str, website: str):
+    with open(path, 'r') as f:
+        body = f.read()
+        if website in body:
+            return True
+        return False
+
 
 class MyItem(scrapy.Item):
     # ... other item fields ...
@@ -74,7 +137,7 @@ class ExtractSpider(scrapy.Spider):
     }
 
     def get_output_folder(self):
-        output_folder = "D://{}".format(datetime.today().strftime('%Y-%m-%d'))
+        output_folder = "E://screenshots_rf/{}".format(datetime.today().strftime('%Y-%m-%d'))
         return output_folder
 
     def clean_domain(self, domain, deletechars='\/:*?"<>|'):
@@ -120,20 +183,8 @@ class ExtractSpider(scrapy.Spider):
                 continue
             else:
                 # else an url is returned
-                time.sleep(0.2)
-                url = msg
-                if '*.' in url:
-                    continue
-
-                domain = self.clean_domain(url, '\/:*?"<>|')
-
-                # check domain is reachable
-                if not check_domain_is_reachable(domain):
-                    # if not reachable, skip
-                    print(f"{domain} not reachable")
-                    continue
-
-                url = 'https://' + domain
+                # time.sleep(0.1)
+                url = 'https://' + msg
                 domain = self.clean_domain(url, '\/:*?"<>|')
                 if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
                     # check domain in output folder, if present, skip
@@ -142,8 +193,8 @@ class ExtractSpider(scrapy.Spider):
                 splash_args = {
                     'lua_source': script,
                     'filters': 'fanboy-annoyance',
-                    'timeout': 20,
-                    'resource_timeout': 20
+                    'timeout': 15,
+                    'resource_timeout': 15,
                 }
 
                 yield SplashRequest(url, self.parse_result, endpoint='execute', args=splash_args)
@@ -159,7 +210,6 @@ class ExtractSpider(scrapy.Spider):
             self.num = max(0, self.num)
 
         domain = self.clean_domain(urlparse(response.data['url']).netloc, '\/:*?"<>|')
-
         png_bytes = base64.b64decode(response.data['png'])
         screenshot_img = Image.open(io.BytesIO(png_bytes))
         if self.white_screen(screenshot_img):
@@ -167,7 +217,7 @@ class ExtractSpider(scrapy.Spider):
 
         if not os.path.exists(self.get_output_folder()):
             os.makedirs(self.get_output_folder())
-        if len(os.listdir(self.get_output_folder())) >= 3000: # daily crawling limit
+        if len(os.listdir(self.get_output_folder())) >= 100: # daily crawling limit
             return
         print(f'crawled page {domain}...')
         output_folder = os.path.join(self.get_output_folder(), domain)
@@ -178,6 +228,11 @@ class ExtractSpider(scrapy.Spider):
         info_path = os.path.join(output_folder, "info.txt")
         html_path = os.path.join(output_folder, "html.txt")
 
+        with open('url_success_crawled.txt', 'a') as f:
+            timestamp = datetime.now().strftime('%m-%d %H:%M:%S')
+            log_message = f'[{timestamp}] {str(domain)}'
+            f.write(log_message + '\n')
+
         with open(screenshot_path, 'wb+') as f:
             f.write(png_bytes)
 
@@ -186,6 +241,45 @@ class ExtractSpider(scrapy.Spider):
 
         with open(html_path, 'wb+') as f:
             f.write(response.body)
+
+        #get domain location
+        location = ''
+        detected = ''
+        results = ''
+        try:
+            location = get_ip_location(domain)
+        except Exception as e:
+            pass
+
+        # Captcha Detection
+        result_path = r'C:\Users\Ruofan\PycharmProjects\MyScrapy\companycrawl\companycrawl\result.txt'
+        # base64_img = convert_image_to_base64(screenshot_path)
+        # if not base64_img or check_duplicate(result_path, domain):
+        #     return
+        # result = CaptchaIdentifier().make_prediction(base64_img)
+        # detected = result.get('detected', False)
+        # results = result.get('results', [])
+        message = f'{domain};{detected};{results};{location}'
+        append(result_path, message)
+        # if detected:
+        #     print(domain, 'contains Captcha')
+
+        # Run Dynaphish
+        isDynaphishUp = False
+        try:
+            response = requests.get('http://192.168.59.130:5002')
+            if response.status_code >= 200 and response.status_code < 300:
+                isDynaphishUp = True
+        except requests.RequestException as e:
+            print("Error connecting to Dynaphish Server")
+            isDynaphishUp = False
+
+        if isDynaphishUp:
+            folder_path = '/mnt/hgfs/screenshots_rf/{}/{}'.format(datetime.today().strftime('%Y-%m-%d'),domain)
+            requests.get(f'http://192.168.59.130:5002/task?folder_path={folder_path}')
+
+        # To run the Crawler
+        # scrapy crawl company -a http_user=user -a http_pass=userpass
 
     def url_join(self, urls, response):
         joined_urls = []
