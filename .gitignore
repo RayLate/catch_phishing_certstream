@@ -4,3 +4,5 @@ aquarium/*.swo
 aquarium/*.swp
 brand_list.json
 *.log
+__pycache__
+*.txt
