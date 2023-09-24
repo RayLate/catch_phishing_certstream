@@ -18,33 +18,33 @@ def convert_image_to_base64(path: str) -> str:
 
         # Open the image file using PIL
 
-        with open(image_path, 'rb') as image_file:
+        with open(image_path, "rb") as image_file:
             image = Image.open(image_file)
 
             # Convert the image to a base64 string
             buffered = BytesIO()
             image.save(buffered, format="PNG")
-            img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             # Print the base64 string
             return img_str
-
 
     except Exception as e:
         print(f"Error: {str(e)}")
 
 
 def append(path: str, message: str):
-    with open(path, 'a') as f:
-        f.write(message+'\n')
+    with open(path, "a") as f:
+        f.write(message + "\n")
 
 
 def check_duplicate(path: str, website: str):
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         body = f.read()
         if website in body:
             return True
         return False
+
 
 def check_domain_is_reachable(domain):
     import socket

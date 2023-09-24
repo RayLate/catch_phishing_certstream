@@ -1,14 +1,14 @@
 
 import requests
 import json
-import datetime
+from datetime import datetime
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-COLLECTION = os.getenv('COLLECTION')
-DATABASE = os.getenv('DATABASE')
-
+COLLECTION = os.getenv('COLLECTION') or 'WebsiteMetaDataProd'
+DATABASE = os.getenv('DATABASE') or 'DynaphishData'
+API_KEY = os.getenv('API_KEY')
 
 def get_all():
     url = "https://ap-southeast-1.aws.data.mongodb-api.com/app/data-zzctf/endpoint/data/v1/action/find"
@@ -21,7 +21,7 @@ def get_all():
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Request-Headers': '*',
-        'api-key': 'rBW9N6vWahvWF6fEPMQVplHf7VC9RvqsI8JDHmTnjjwKdf77c2uRtaxtcv4Vn4I8',
+        'api-key': API_KEY,
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -45,7 +45,7 @@ def get_one(folder):
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Request-Headers': '*',
-        'api-key': 'rBW9N6vWahvWF6fEPMQVplHf7VC9RvqsI8JDHmTnjjwKdf77c2uRtaxtcv4Vn4I8',
+        'api-key': API_KEY,
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -69,7 +69,7 @@ def reset_collection():
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Request-Headers': '*',
-        'api-key': 'rBW9N6vWahvWF6fEPMQVplHf7VC9RvqsI8JDHmTnjjwKdf77c2uRtaxtcv4Vn4I8',
+        'api-key': API_KEY,
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -93,7 +93,7 @@ def add_one(data: dict):
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Request-Headers': '*',
-        'api-key': 'rBW9N6vWahvWF6fEPMQVplHf7VC9RvqsI8JDHmTnjjwKdf77c2uRtaxtcv4Vn4I8',
+        'api-key': API_KEY,
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -121,7 +121,7 @@ def update_one(data: dict):
     headers = {
         'Content-Type': 'application/json',
         'Access-Control-Request-Headers': '*',
-        'api-key': 'rBW9N6vWahvWF6fEPMQVplHf7VC9RvqsI8JDHmTnjjwKdf77c2uRtaxtcv4Vn4I8',
+        'api-key': API_KEY,
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -146,7 +146,6 @@ def get_sample_data(folder='') -> dict:
                    'phish_prediction': 0,
                    'target_prediction': '',
                    'has_logo': False,
-                   'in_target_list': False,
                    'has_forbidden_words': False,
                    'brand_inside_targetlist': False,
                    'found_knowledge': False,
@@ -157,8 +156,9 @@ def get_sample_data(folder='') -> dict:
                    'wi_runtime': 0,
                    'expand_targetlist_runtime': 0,
                    'total_runtime': 0,
+                   "date":"",
                    'modified': None,
-                   'created': int(datetime.datetime.now().timestamp())
+                   'created': int(datetime.now().timestamp())
                    }
 
     return sample_data

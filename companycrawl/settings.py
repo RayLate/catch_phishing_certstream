@@ -7,10 +7,10 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'companycrawl'
+BOT_NAME = "companycrawl"
 
-SPIDER_MODULES = ['companycrawl.spiders']
-NEWSPIDER_MODULE = 'companycrawl.spiders'
+SPIDER_MODULES = ["companycrawl.spiders"]
+NEWSPIDER_MODULE = "companycrawl.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -22,28 +22,28 @@ ROBOTSTXT_OBEY = False
 # DOWNLOADER_CLIENT_TLS_METHOD = 'SSLv3'
 
 # SPLASH_URL = 'http://localhost:8050'
-SPLASH_URL = 'http://192.168.1.5:8050'
+SPLASH_URL = "http://192.168.1.5:8050"
 
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+    "scrapy_splash.SplashCookiesMiddleware": 723,
+    "scrapy_splash.SplashMiddleware": 725,
+    "scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware": 810,
 }
 
 RETRY_ENABLED = False
 SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+    "scrapy_splash.SplashDeduplicateArgsMiddleware": 100,
 }
 
 SPLASH_LOG_400 = False
-LOG_LEVEL = 'INFO'  # todo: I set only log critical error
+LOG_LEVEL = "INFO"  # todo: I set only log critical error
 
 # ITEM_PIPELINES = {'scrapy.pipelines.images.ImagesPipeline': 1}
 # IMAGES_STORE = r'D:\Phishing'
 IMAGES_EXPIRES = 0
 HTTPERROR_ALLOWED_CODES = [503, 504]  # !
-DUPEFILTER_CLASS = 'scrapy.dupefilters.BaseDupeFilter'
-HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+DUPEFILTER_CLASS = "scrapy.dupefilters.BaseDupeFilter"
+HTTPCACHE_STORAGE = "scrapy_splash.SplashAwareFSCacheStorage"
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 16
 

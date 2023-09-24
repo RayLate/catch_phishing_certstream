@@ -33,7 +33,7 @@ function main(splash, args)
 end
 """
 
-HOST_IP = '192.168.1.5'
+HOST_IP = "192.168.1.5"
 
 
 def get_ip_location(domain):
@@ -47,13 +47,13 @@ def get_ip_location(domain):
     ip_address = ip(domain)
     if ip_address:
         ip_address = ip_address[0]
-        request_url = 'https://geolocation-db.com/jsonp/' + ip_address
+        request_url = "https://geolocation-db.com/jsonp/" + ip_address
         response = requests.get(request_url)
         result = response.content.decode()
         result = result.split("(")[1].strip(")")
         result = json.loads(result)
-        return result.get('country_name')
-    return ''
+        return result.get("country_name")
+    return ""
 
 
 def convert_image_to_base64(path: str) -> str:
@@ -69,13 +69,13 @@ def convert_image_to_base64(path: str) -> str:
             raise ValueError("File is not a valid image")
 
         # Open the image file using PIL
-        with open(image_path, 'rb') as image_file:
+        with open(image_path, "rb") as image_file:
             image = Image.open(image_file)
 
             # Convert the image to a base64 string
             buffered = BytesIO()
             image.save(buffered, format="PNG")
-            img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             # Print the base64 string
             return img_str
@@ -85,12 +85,12 @@ def convert_image_to_base64(path: str) -> str:
 
 
 def append(path: str, message: str):
-    with open(path, 'a') as f:
-        f.write(message + '\n')
+    with open(path, "a") as f:
+        f.write(message + "\n")
 
 
 def check_duplicate(path: str, website: str):
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         body = f.read()
         if website in body:
             return True
@@ -105,7 +105,7 @@ class MyItem(scrapy.Item):
 
 
 class ExtractSpider(scrapy.Spider):
-    name = 'company'
+    name = "company"
     num = 0
     custom_settings = {
         "HTTPERROR_ALLOWED_CODES": [503],
@@ -113,14 +113,15 @@ class ExtractSpider(scrapy.Spider):
 
     @staticmethod
     def get_output_folder():
-        output_folder = "D:\Dynaphish\data\{}".format(
-            datetime.today().strftime('%Y-%m-%d'))
+        # output_folder = "D:\Dynaphish\data\{}".format(
+        #     datetime.today().strftime('%Y-%m-%d'))
+        output_folder = "D:\Dynaphish\data\get\has-logo-queue"
         return output_folder
 
     @staticmethod
     def clean_domain(domain, deletechars='\/:*?"<>|'):
         for c in deletechars:
-            domain = domain.replace(c, '')
+            domain = domain.replace(c, "")
         return domain
 
     @staticmethod
@@ -150,10 +151,10 @@ class ExtractSpider(scrapy.Spider):
                 print(self.num)
                 time.sleep(5)
                 self.num -= 10
-            connection.send('1'.encode('utf-8'))
+            connection.send("1".encode("utf-8"))
             msg = connection.recv(2048)
-            msg = msg.decode('utf-8')
-            if msg == '1':
+            msg = msg.decode("utf-8")
+            if msg == "1":
                 # if the return message is '1', means the queue is empty
                 # wait and try again
                 time.sleep(1)
@@ -161,30 +162,37 @@ class ExtractSpider(scrapy.Spider):
             else:
                 # else an url is returned
                 # time.sleep(0.1)
-                url = 'https://' + msg
+                url = "https://" + msg
                 domain = self.clean_domain(url, '\/:*?"<>|')
-                if os.path.exists(os.path.join(self.get_output_folder(), domain, 'html.txt')):
+                if os.path.exists(
+                    os.path.join(self.get_output_folder(), domain, "html.txt")
+                ):
                     # check domain in output folder, if present, skip
                     continue
 
                 splash_args = {
-                    'lua_source': script,
-                    'filters': 'fanboy-annoyance',
-                    'timeout': 15,
-                    'resource_timeout': 15,
+                    "lua_source": script,
+                    "filters": "fanboy-annoyance",
+                    "timeout": 15,
+                    "resource_timeout": 15,
                 }
-                http_user = 'user'
-                http_pass = 'userpass'
+                http_user = "user"
+                http_pass = "userpass"
                 auth = basic_auth_header(http_user, http_pass)
-                with open('url_attempt.txt', 'a') as f:
-                    timestamp = datetime.now().strftime('%m-%d %H:%M:%S')
-                    log_message = f'[{timestamp}] {str(domain)}'
-                    f.write(log_message + '\n')
+                with open("url_attempt.txt", "a") as f:
+                    timestamp = datetime.now().strftime("%m-%d %H:%M:%S")
+                    log_message = f"[{timestamp}] {str(domain)}"
+                    f.write(log_message + "\n")
 
-                yield SplashRequest(url, self.parse_result, splash_headers={'Authorization': auth}, endpoint='execute', args=splash_args)
+                yield SplashRequest(
+                    url,
+                    self.parse_result,
+                    splash_headers={"Authorization": auth},
+                    endpoint="execute",
+                    args=splash_args,
+                )
 
     def parse_result(self, response):
-
         if response.status == 503:
             print(self.num)
             self.num += 1
@@ -193,18 +201,15 @@ class ExtractSpider(scrapy.Spider):
             self.num -= 1
             self.num = max(0, self.num)
 
-        domain = self.clean_domain(
-            urlparse(response.data['url']).netloc, '\/:*?"<>|')
-        png_bytes = base64.b64decode(response.data['png'])
+        domain = self.clean_domain(urlparse(response.data["url"]).netloc, '\/:*?"<>|')
+        png_bytes = base64.b64decode(response.data["png"])
         screenshot_img = Image.open(io.BytesIO(png_bytes))
         if self.white_screen(screenshot_img):
             return
 
         if not os.path.exists(self.get_output_folder()):
             os.makedirs(self.get_output_folder())
-        if len(os.listdir(self.get_output_folder())) >= 100:  # daily crawling limit
-            return
-        print(f'crawled page {domain}...')
+        print(f"crawled page {domain}...")
         output_folder = os.path.join(self.get_output_folder(), domain)
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -213,48 +218,34 @@ class ExtractSpider(scrapy.Spider):
         info_path = os.path.join(output_folder, "info.txt")
         html_path = os.path.join(output_folder, "html.txt")
 
-        with open('url_success_crawled.txt', 'a') as f:
-            timestamp = datetime.now().strftime('%m-%d %H:%M:%S')
-            log_message = f'[{timestamp}] {str(domain)}'
-            f.write(log_message + '\n')
+        with open("url_success_crawled.txt", "a") as f:
+            timestamp = datetime.now().strftime("%m-%d %H:%M:%S")
+            log_message = f"[{timestamp}] {str(domain)}"
+            f.write(log_message + "\n")
 
-        with open(screenshot_path, 'wb+') as f:
+        with open(screenshot_path, "wb+") as f:
             f.write(png_bytes)
 
-        with open(info_path, 'w+') as f:
-            f.write(response.data['url'])
+        with open(info_path, "w+") as f:
+            f.write(response.data["url"])
 
-        with open(html_path, 'wb+') as f:
+        with open(html_path, "wb+") as f:
             f.write(response.body)
 
         # get domain location
-        location = ''
+        location = ""
         try:
             location = get_ip_location(domain)
         except Exception as e:
             pass
 
         data = get_sample_data(domain)
-        data['location'] = location
+        data["location"] = location
+        data["date"] = datetime.today().strftime("%Y-%m-%d")
         add_one(data)
-        # Run Dynaphish
-        # isDynaphishUp = False
-        # try:
-        #     response = requests.get('http://{}:7002'.format(HOST_IP))
-        #     if response.status_code >= 200 and response.status_code < 300:
-        #         isDynaphishUp = True
-        # except requests.RequestException as e:
-        #     print("Error connecting to Dynaphish Server")
-        #     isDynaphishUp = False
 
-        # if isDynaphishUp:
-        #     folder_path = '/data/{}/{}'.format(
-        #         datetime.today().strftime('%Y-%m-%d'), domain)
-        #     requests.get(
-        #         f'http://{HOST_IP}:7002/task?folder_path={folder_path}')
-
-        # To run the Crawler
-        # scrapy crawl company -a http_user=user -a http_pass=userpass
+        folder_path = "/data/has-logo-queue/{}".format(domain)
+        requests.get(f"http://{HOST_IP}/task?folder_path={folder_path}")
 
     def url_join(self, urls, response):
         joined_urls = []
