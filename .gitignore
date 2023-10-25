@@ -6,3 +6,4 @@ brand_list.json
 *.log
 __pycache__
 *.txt
+.env

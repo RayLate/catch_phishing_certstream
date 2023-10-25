@@ -115,7 +115,7 @@ class ExtractSpider(scrapy.Spider):
     def get_output_folder():
         # output_folder = "D:\Dynaphish\data\{}".format(
         #     datetime.today().strftime('%Y-%m-%d'))
-        output_folder = "D:\Dynaphish\data\get\has-logo-queue"
+        output_folder = "D:\Dynaphish\data\has-logo-queue"
         return output_folder
 
     @staticmethod
@@ -209,6 +209,10 @@ class ExtractSpider(scrapy.Spider):
 
         if not os.path.exists(self.get_output_folder()):
             os.makedirs(self.get_output_folder())
+        if len(os.listdir(self.get_output_folder())) > 1000:
+            # applying a limit of 1000 folders to the output folder
+            return
+        
         print(f"crawled page {domain}...")
         output_folder = os.path.join(self.get_output_folder(), domain)
         if not os.path.exists(output_folder):
@@ -245,7 +249,8 @@ class ExtractSpider(scrapy.Spider):
         add_one(data)
 
         folder_path = "/data/has-logo-queue/{}".format(domain)
-        requests.get(f"http://{HOST_IP}/task?folder_path={folder_path}")
+        requests.post(f"http://{HOST_IP}:8000/has-logo-queue/{domain}")
+        # requests.get(f"http://{HOST_IP}/task?folder_path={folder_path}")
 
     def url_join(self, urls, response):
         joined_urls = []
