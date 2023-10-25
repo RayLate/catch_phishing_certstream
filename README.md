@@ -8,8 +8,9 @@ URLs with its HTML, screenshot, information.
 ```
 conda create --name py37-fixed python=3.7.10
 conda activate py37-fixed
-pip install -r req.txt
+pip install -r requirement.txt
 ```
+if pip install fail, please install dependency one by one
 
 ## Step 1: Start URL feeding, feed obtained from Certstream
 
