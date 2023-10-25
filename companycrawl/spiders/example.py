@@ -242,11 +242,12 @@ class ExtractSpider(scrapy.Spider):
             location = get_ip_location(domain)
         except Exception as e:
             pass
-
-        data = get_sample_data(domain)
-        data["location"] = location
-        data["date"] = datetime.today().strftime("%Y-%m-%d")
-        add_one(data)
+        
+        if check_enable_db():
+            data = get_sample_data(domain)
+            data["location"] = location
+            data["date"] = datetime.today().strftime("%Y-%m-%d")
+            add_one(data)
 
         folder_path = "/data/has-logo-queue/{}".format(domain)
         requests.post(f"http://{HOST_IP}:8000/has-logo-queue/{domain}")
