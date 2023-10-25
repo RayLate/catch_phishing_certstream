@@ -7,3 +7,4 @@ brand_list.json
 __pycache__
 *.txt
 .env
+db/
